@@ -14,6 +14,14 @@ import Input from "../../components/core/inputFeild";
 
 import { makeStyles } from "@mui/styles";
 import { createStyles } from "@material-ui/core";
+import ResponsiveAppBar from "../../components/layout/navbar/navbar";
+import { Container } from "@mui/material";
+
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
 
 import axios from "../../axios";
 import useNotification from "../../components/core/snakeBar";
@@ -33,7 +41,8 @@ const useStyles = makeStyles(
         minHeight: "100vh",
         height: "auto",
         width: "500px",
-        margin: "12px",
+        margin: "0 auto",
+
         // backgroundColor: "#ccc",
       },
       Para: {
@@ -97,15 +106,21 @@ BootstrapDialogTitle.propTypes = {
 
 export default function DialogsEdit(props) {
   const classes = useStyles();
-  const { open, handleClickOpen, handleClose, data } = props;
+  const [value, setValue] = React.useState(0);
+  const [SelectedImage, setSelectedImage] = useState(null);
   const [, sendNotification] = useNotification();
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  };
+  const { open, handleClickOpen, handleClose, data } = props;
 
   const initialFValues = {
     date: data ? data.date : "",
-    time: data ? data.time : "",
-    crew: data ? data.crew : "",
-    serviseType: data ? data.serviseType : "",
-    payment: data ? data.payment : "",
+    time: data ? data.time : "|",
+    crew: data ? data.crew : "|",
+    serviseType: data ? data.serviseType : "|",
+    payment: data ? data.payment : "|",
   };
 
   const validate = useCallback((fieldValues = values) => {
@@ -133,8 +148,6 @@ export default function DialogsEdit(props) {
   );
   const handleSend = async (e) => {
     e.preventDefault();
-
-    console.log("kok");
     handleSubmit();
     // handleClose();
   };
@@ -146,35 +159,26 @@ export default function DialogsEdit(props) {
       crew: values.crew,
       serviseType: values.serviseType,
       payment: values.payment,
-      isComplete: 0,
+      isComplete: Number(value),
     };
     axios
-      .put(`booking`, json, {
-        params: { id: data.id },
-        headers: { "Content-Type": "application/json; charset=utf8" },
+      .post(`booking`, json, {
+        headers: { "Content-Type": "application/json" },
       })
       .then((res) => {
         sendNotification({ msg: "success", variant: "success" });
-        window.location.href = "/";
+        window.location.href = "/bookings";
       })
       .catch((error) => {
         console.log("There was an error!", error.response);
-        sendNotification({ msg: "error", variant: "error" });
+        sendNotification({ msg: "success", variant: "success" });
       });
   };
   return (
     <div>
-      <BootstrapDialog
-        onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
-        open={open}
-      >
-        <BootstrapDialogTitle
-          id="customized-dialog-title"
-          onClose={handleClose}
-        >
-          Edit Data
-        </BootstrapDialogTitle>
+      <ResponsiveAppBar />
+      <br />
+      <Container>
         <Form className={classes.MainDiv} onSubmit={handleSubmit}>
           <Input
             name="date"
@@ -227,14 +231,26 @@ export default function DialogsEdit(props) {
             error={errors.payment}
             label="Payment"
           />
+          <br />
+          <FormControl>
+            <FormLabel id="demo-controlled-radio-buttons-group">
+              Complete
+            </FormLabel>
+            <RadioGroup
+              aria-labelledby="demo-controlled-radio-buttons-group"
+              name="controlled-radio-buttons-group"
+              value={value}
+              onChange={handleChange}
+            >
+              <FormControlLabel value={1} control={<Radio />} label="YES" />
+              <FormControlLabel value={0} control={<Radio />} label="No" />
+            </RadioGroup>
+          </FormControl>
+          <br />
+          <br />
+          <Button onClick={handleSend}>Add</Button>
         </Form>
-        <DialogContent dividers></DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleSend}>
-            Save changes
-          </Button>
-        </DialogActions>
-      </BootstrapDialog>
+      </Container>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import Login from "../page/authorization/login";
 import RegisterWithUs from "../page/authorization/registeredWithUs";
 import Booking from "../page/booking";
 import Profile from "../page/profile";
-
+import AddBooking from "../page/booking/addBooking";
 export const publicRoutes = [
   {
     path: "/",
@@ -26,6 +26,11 @@ export const publicRoutes = [
   {
     path: "/bookings",
     component: Booking,
+    exact: true,
+  },
+  {
+    path: "/add-booking",
+    component: AddBooking,
     exact: true,
   },
   {
